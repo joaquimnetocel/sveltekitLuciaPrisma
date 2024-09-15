@@ -13,3 +13,18 @@ datasource db {
   url      = env("DATABASE_URL")
   // directUrl = env("DIRECT_URL") // Direct connection to the database. Used for migrations.
 }
+
+model User {
+  id       BigInt    @id @default(autoincrement())
+  googleId String    @unique
+  name     String
+  email    String    @unique
+  sessions Session[]
+}
+
+model Session {
+  id        String   @id
+  userId    BigInt
+  expiresAt DateTime
+  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+}
