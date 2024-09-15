@@ -1,0 +1,21 @@
+{
+	"recommendations": [
+		"esbenp.prettier-vscode", // PRETTIER
+		"svelte.svelte-vscode", // SVELTE FOR VS CODE
+		"dbaeumer.vscode-eslint", // ESLINT
+		"natqe.reload", // RELOAD
+		"formulahendry.auto-rename-tag", // AUTO RENAME TAG
+		"shd101wyy.markdown-preview-enhanced", // MARKDOWN PREVIEW ENHANCED
+		"DavidAnson.vscode-markdownlint", // MARKDOWNLINT
+		"Chanzhaoyu.svelte-5-snippets", // SVELTE 5 SNIPPETS
+		"vscode-icons-team.vscode-icons", // VSCODE ICONS
+		"prisma.prisma", // PRISMA
+		"mikestead.dotenv", // DOTENV
+		// TAILWIND EXTENSIONS:
+		"heybourn.headwind", // HEADWIND
+		"bradlc.vscode-tailwindcss", // TAILWIND CSS INTELLISENSE
+		"csstools.postcss", // POSTCSS LANGUAGE SUPPORT
+		"stivo.tailwind-fold" // TAILWIND FOLD
+		/////
+	]
+}
