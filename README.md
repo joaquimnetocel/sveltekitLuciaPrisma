@@ -18,5 +18,9 @@ npm run dev
 
 ## HOW TO CREATE THE CREDENTIALS
 
-- [FOR GITHUB](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app)
-- [FOR GOOGLE](https://developers.google.com/identity/protocols/oauth2/web-server#httprests)
+- [GITHUB](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app)
+- [GOOGLE](https://developers.google.com/identity/protocols/oauth2/web-server#httprests)
+
+## CREDENTIALS LINKS
+
+- [GOOGLE](https://console.developers.google.com/apis/credentials)
