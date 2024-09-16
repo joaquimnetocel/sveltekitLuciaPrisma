@@ -1,20 +1,21 @@
 import { lucia } from '$lib/server/lucia';
-import { redirect, type RequestEvent } from '@sveltejs/kit';
+import { redirect } from '@sveltejs/kit';
+import type { RequestHandler } from './$types';
 
-export async function GET(event: RequestEvent): Promise<Response> {
-	if (!event.locals.session) {
+export const GET: RequestHandler = async ({ cookies, locals }) => {
+	if (!locals.session) {
 		redirect(302, '/login');
 	}
 
-	await lucia.invalidateSession(event.locals.session.id);
+	await lucia.invalidateSession(locals.session.id);
 	const sessionCookie = lucia.createBlankSessionCookie();
-	event.cookies.set(sessionCookie.name, sessionCookie.value, {
+	cookies.set(sessionCookie.name, sessionCookie.value, {
 		path: '.',
 		...sessionCookie.attributes,
 	});
 
-	event.cookies.delete('google_oauth_state', { path: '.' });
-	event.cookies.delete('google_oauth_code_verifier', { path: '.' });
+	cookies.delete('google_oauth_state', { path: '.' });
+	cookies.delete('google_oauth_code_verifier', { path: '.' });
 
 	redirect(302, '/');
-}
+};

@@ -15,8 +15,9 @@ datasource db {
 }
 
 model User {
-  id       BigInt    @id @default(autoincrement())
+  id       String    @id @default(cuid())
   googleId String    @unique
+  githubId String    @unique
   name     String
   email    String    @unique
   sessions Session[]
@@ -24,7 +25,7 @@ model User {
 
 model Session {
   id        String   @id
-  userId    BigInt
+  userId    String
   expiresAt DateTime
   user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
 }

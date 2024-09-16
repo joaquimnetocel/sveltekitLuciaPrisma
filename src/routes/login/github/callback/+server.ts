@@ -1,43 +1,45 @@
+// routes/login/github/callback/+server.ts
 import { lucia } from '$lib/server/lucia';
-import { google } from '$lib/server/lucia/google';
+import { github } from '$lib/server/lucia/github';
 import { OAuth2RequestError } from 'arctic';
 import type { RequestHandler } from './$types';
 
-interface GoogleUser {
-	sub: string; // Unique identifier for the user
-	name: string; // Full name of the user
-	email: string; // Email address of the user
+interface GitHubUser {
+	id: number;
+	login: string;
+	email: string;
+	html_url: string;
+	avatar_url: string;
 }
 
-export const GET: RequestHandler = async ({ url, cookies }) => {
+export const GET: RequestHandler = async ({ cookies, url }) => {
 	const code = url.searchParams.get('code');
 	const state = url.searchParams.get('state');
-	const codeVerifier = cookies.get('google_oauth_code_verifier');
-	const storedState = cookies.get('google_oauth_state') ?? null;
+	const storedState = cookies.get('github_oauth_state') ?? null;
 
-	if (!code || !state || !storedState || !codeVerifier || state !== storedState) {
+	if (!code || !state || !storedState || state !== storedState) {
 		return new Response(null, {
 			status: 400,
 		});
 	}
 
 	try {
-		const tokens = await google.validateAuthorizationCode(code, codeVerifier);
-		const googleUserResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+		const tokens = await github.validateAuthorizationCode(code);
+		const githubUserResponse = await fetch('https://api.github.com/user', {
 			headers: {
 				Authorization: `Bearer ${tokens.accessToken}`,
 			},
 		});
-		const googleUser: GoogleUser = await googleUserResponse.json();
+		const githubUser: GitHubUser = await githubUserResponse.json();
 
-		const existingGoogleUser = await prismaClient.user.findUnique({
+		const existingUser = await prismaClient.user.findUnique({
 			where: {
-				email: googleUser.email,
+				email: githubUser.email,
 			},
 		});
 
-		if (existingGoogleUser) {
-			const session = await lucia.createSession(existingGoogleUser.id, {});
+		if (existingUser) {
+			const session = await lucia.createSession(existingUser.id, {});
 			const sessionCookie = lucia.createSessionCookie(session.id);
 			cookies.set(sessionCookie.name, sessionCookie.value, {
 				path: '.',
@@ -46,10 +48,10 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 		} else {
 			const newUser = await prismaClient.user.create({
 				data: {
-					email: googleUser.email, // Using email as username
-					googleId: googleUser.sub,
-					githubId: '',
-					name: googleUser.name, // Name field may not always be present, handle accordingly
+					email: githubUser.email, // Using email as username
+					googleId: '',
+					githubId: githubUser.id.toString(),
+					name: githubUser.login, // Name field may not always be present, handle accordingly
 				},
 			});
 
@@ -67,7 +69,9 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 			},
 		});
 	} catch (e) {
+		// the specific error message depends on the provider
 		if (e instanceof OAuth2RequestError) {
+			// invalid code
 			return new Response(null, {
 				status: 400,
 			});
